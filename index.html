@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Resistividad con IA</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Simulador de Resistividad</h1>
+        <nav>
+            <ul>
+                <li><a href="#teoria">Teoría</a></li>
+                <li><a href="#simulador">Simulador</a></li>
+                <li><a href="#ejemplos">Ejemplos Prácticos</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+                <li><a href="#guia">Guía</a></li>
+                <li><a href="#resultado-analisis">Resultado</a></li>
+
+            </ul>
+        </nav>
+    </header>
+
+    <section id="teoria" class="container">
+        <h2>Teoría de Resistividad</h2>
+        <p>La resistividad es una propiedad intrínseca de los materiales que mide su capacidad para resistir el flujo de corriente eléctrica. Se expresa en ohmios metro (Ω·m).</p>
+        <p>Los factores que afectan la resistencia de un conductor son:</p>
+        <ul>
+            <li><strong>Longitud (L):</strong> A mayor longitud, mayor resistencia.</li>
+            <li><strong>Área (A):</strong> A mayor área, menor resistencia.</li>
+            <li><strong>Resistividad (ρ):</strong> Depende del material del conductor.</li>
+        </ul>
+        <p>La fórmula básica para calcular la resistencia es:</p>
+        <p><strong>R = ρ (L / A)</strong></p>
+    
+        <h3>Valores de Resistividad a Temperatura Ambiente</h3>
+        <p>La resistividad de los materiales varía dependiendo de su naturaleza. A continuación, algunos valores típicos:</p>
+        <ul>
+            <li><strong>Cobre:</strong> 1.68 × 10<sup>-8</sup> Ω·m</li>
+            <li><strong>Aluminio:</strong> 2.82 × 10<sup>-8</sup> Ω·m</li>
+            <li><strong>Oro:</strong> 2.44 × 10<sup>-8</sup> Ω·m</li>
+            <li><strong>Plata:</strong> 1.59 × 10<sup>-8</sup> Ω·m</li>
+        </ul>
+    
+        <h3>¿Por qué la Resistividad tiene un Valor Diferente Dependiendo del Material?</h3>
+        <p>La resistividad de un material depende principalmente de su estructura atómica, las interacciones entre electrones y átomos, la presencia de impurezas y la temperatura. En los metales, los electrones de valencia están sueltos y pueden moverse fácilmente, lo que da como resultado una baja resistividad. En cambio, los aislantes tienen electrones fuertemente ligados a los átomos, lo que impide su movimiento y genera alta resistividad.</p>
+        <p>Además, las impurezas y defectos en la estructura del material actúan como obstáculos que dificultan el movimiento de los electrones, incrementando la resistividad.</p>
+    
+        <h3>¿Cómo Medir Resistividad?</h3>
+        <p><strong>Método de las Cuatro Puntas (Four-Point Probe):</strong> Es uno de los métodos más precisos para medir resistividad en muestras delgadas y homogéneas. Se utilizan cuatro puntas alineadas que se colocan sobre la superficie del material. A través de las dos puntas exteriores se aplica una corriente, mientras que las dos puntas interiores miden la caída de voltaje. La fórmula utilizada es:</p>
+        <p><strong>ρ = ω/In(2) * (V/I) * t * k</strong></p>
+        <p>Donde:</p>
+        <ul>
+            <li>ρ: Resistividad de Volumen (Ω·m)</li>
+            <li>V: Voltaje medido (voltios)</li>
+            <li>I: Corriente suministrada (amperios)</li>
+            <li>t: Ancho de la muestra (cm)</li>
+            <li>k: Factor de corrección basado en la relación de las sondas con el diámetro de la oblea</li>
+        </ul>
+        <p><strong>Método de la Relación de Corriente y Voltaje (Ley de Ohm):</strong> Se aplica una corriente constante a través de la muestra y se mide la diferencia de potencial a lo largo de la misma. La fórmula para la resistividad es:</p>
+        <p><strong>ρ = R * (A / L)</strong></p>
+        <p>Este método es sencillo y directo, ideal para medir resistividades en conductores y muestras largas.</p>
+    </section>
+    <section id="guia" class="container">
+        <h2>Guía del Laboratorio de Resistividad</h2>
+    
+        <h3>Objetivo</h3>
+        <p>Comprobar la relación teórica entre la resistividad y la resistencia eléctrica mediante la determinación experimental de la resistividad de diferentes alambres a temperatura ambiente. Utilizaremos montajes sencillos para medir con precisión la resistencia y las dimensiones de los conductores, y compararemos los resultados obtenidos con los valores teóricos conocidos.</p>
+        <p>Además, investigaremos cómo factores como la longitud y el diámetro del conductor afectan su resistencia, de acuerdo con la teoría. El objetivo es permitir una comprensión más profunda de los principios físicos que gobiernan la conductividad eléctrica. Al determinar experimentalmente la resistividad de diferentes materiales, se espera obtener resultados precisos y fiables que puedan ser contrastados con los valores teóricos, identificando posibles errores experimentales.</p>
+    
+        <h3>¿Qué Hacer para Estar Preparado para Realizar el Laboratorio?</h3>
+        <p>Para desarrollar este laboratorio, nos apoyaremos en el aula virtual, donde encontraremos el material de estudio. Una vez que ingrese al aula virtual, el estudiante debe seguir los siguientes pasos:</p>
+        
+        <ol>
+            <li><strong>Buscar el proyecto i3. Resistividad:</strong> Allí encontrará un video, un cuestionario previo al laboratorio (CPL), y una hoja de trabajo para una mejor preparación para este laboratorio.</li>
+            
+            <li><strong>Ver el video:</strong> Este video proporciona información sobre los materiales y los objetivos del laboratorio. 
+            <br>
+            <a href="https://youtu.be/VwzkAeIejYE" target="_blank">Ver Video del Laboratorio</a></li>
+            
+            <li><strong>Preparación del CPL:</strong> El estudiante deberá responder un cuestionario en el cual se evaluarán los conceptos que debe conocer antes del desarrollo del laboratorio. Este cuestionario asegurará que el estudiante esté familiarizado con los conceptos clave relacionados con la resistividad y la resistencia.</li>
+            
+            <li><strong>Descargue la hoja de trabajo:</strong> En esta hoja de trabajo encontrará el nombre de los materiales que va a usar, los objetivos, los cálculos y las medidas que deberá realizar durante el laboratorio.</li>
+            
+            <li><strong>Descargue el formato de reporte:</strong> Prepare su reporte con base en este formato para organizar sus observaciones y conclusiones del laboratorio.</li>
+        </ol>
+        
+    </section>
+    <section id="resultado-analisis" class="container">
+        <h2>Resultado y Análisis</h2>
+    
+        <h3>PARTE 1: Medición de la resistencia para varios valores de longitud</h3>
+        <ol>
+            <li>
+                <strong>Gráfica de la resistencia en función de la longitud:</strong> 
+                Realizar una gráfica con los valores de resistencia registrados por el óhmetro en función de la longitud del segmento de alambre.
+            </li>
+            <li>
+                <strong>Descripción del comportamiento observado:</strong> 
+                Describir el comportamiento de la resistencia en función de la longitud y encontrar la ecuación que mejor describa esta relación.
+            </li>
+            <li>
+                <strong>Comparación con la teoría:</strong> 
+                Analizar si el comportamiento observado coincide con lo predicho por la ecuación teórica de resistividad.
+            </li>
+            <li>
+                <strong>Cálculo de resistividad:</strong> 
+                Usar el diámetro del alambre para calcular la resistividad del material.
+            </li>
+            <li>
+                <strong>Comparación con datos de la literatura:</strong> 
+                Buscar un valor teórico de resistividad en la literatura científica y comparar con el valor experimental obtenido.
+            </li>
+            <li>
+                <strong>Análisis de resultados:</strong> 
+                Comentar y analizar los resultados obtenidos, así como cualquier observación adicional relevante.
+            </li>
+        </ol>
+    
+        <h3>PARTE 2: Medición de la corriente para diferentes longitudes</h3>
+        <ol>
+            <li>
+                <strong>Análisis de la gráfica obtenida:</strong> 
+                Describir qué se observa en la gráfica de corriente medida en función de la longitud del alambre, y qué información útil se puede extraer.
+            </li>
+            <li>
+                <strong>Relación corriente-longitud:</strong> 
+                Determinar la dependencia de la corriente con la longitud del segmento del alambre usando la Ley de Ohm para circuitos.
+            </li>
+            <li>
+                <strong>Linealización de la relación:</strong> 
+                Explicar una forma de graficar las variables medidas para obtener una relación lineal que facilite los cálculos mediante regresión lineal.
+            </li>
+            <li>
+                <strong>Cálculo de la resistividad:</strong> 
+                A partir de la ecuación de la recta obtenida en el gráfico, calcular la resistividad del material del alambre.
+            </li>
+            <li>
+                <strong>Interpretación de los parámetros:</strong> 
+                Identificar el significado de otros parámetros presentes en la ecuación obtenida.
+            </li>
+            <li>
+                <strong>Comparación con datos teóricos:</strong> 
+                Buscar un valor teórico de resistividad en la literatura y compararlo con el valor experimental, determinando el material del alambre.
+            </li>
+            <li>
+                <strong>Análisis y conclusiones:</strong> 
+                Analizar los resultados obtenidos y realizar observaciones adicionales.
+            </li>
+        </ol>
+    </section>
+    
+
+    <section id="simulador" class="container">
+        <h2>Simulador de Resistividad</h2>
+        <form id="resistivityForm">
+            <label for="calculo">¿Qué deseas calcular?</label>
+            <select id="calculo" name="calculo">
+                <option value="resistencia">Resistencia (R)</option>
+                <option value="resistividad">Resistividad (ρ)</option>
+                <option value="longitud">Longitud (L)</option>
+                <option value="area">Área (A)</option>
+            </select>
+            <div id="inputs"></div>
+            <button type="submit">Calcular</button>
+        </form>
+        <div id="result" class="result">
+            <p id="resultadoTexto"></p>
+            <p id="feedbackTexto"></p>
+            <p id="sugerenciaTexto"></p>
+        </div>
+    </section>
+    <section id="parametros-calificacion" class="container">
+        <h2>Parámetros para Revisar Formato de Calificación</h2>
+    
+        <h3>PRESENTACIÓN:</h3>
+        <ol>
+            <li>¿Utilizó el formato establecido en la plataforma Moodle?</li>
+            <li>¿El título corresponde al desarrollo del proyecto de investigación?</li>
+            <li>¿Incluyó el nombre de los integrantes del grupo (carrera y código)?</li>
+            <li>¿Incluyó el nombre del docente encargado de orientar el proyecto de investigación?</li>
+            <li>¿El informe tiene el Nombre grupo del laboratorio y subgrupo de laboratorio?</li>
+            <li>¿Las referencias de los textos consultados están de acuerdo a las normas APA?</li>
+        </ol>
+    
+        <h3>METODOLOGÍA:</h3>
+        <ol>
+            <li>¿Describió la ejecución del proyecto de investigación en pasado y de forma impersonal?</li>
+            <li>¿Realizó la inclusión de fotos, imágenes o gráficos del montaje empleado en el experimento?</li>
+        </ol>
+    
+        <h3>TRATAMIENTO DE DATOS:</h3>
+        <ol>
+            <li>¿Realizó la edición de ecuaciones y un cálculo mínimo para cada ecuación?</li>
+            <li>¿Reportó la incertidumbre de la medición junto a la tabla de datos?</li>
+            <li>¿Verificó que las tablas estén completas, etiquetadas y con sus respectivas unidades?</li>
+            <li>¿Revisó las unidades de medición con sus respectivas conversiones?</li>
+            <li>¿Verificó que los resultados estén acompañados de las unidades?</li>
+            <li>¿Chequeó las cifras significativas y redondeó de unidades? (recuerde que se reporta con la medida más inexacta)</li>
+        </ol>
+    
+        <h3>ANÁLISIS DE DATOS Y TRATAMIENTO DE GRÁFICAS:</h3>
+        <ol>
+            <li>¿Revisó que las imágenes lleven etiqueta y descripción?</li>
+            <li>¿Verificó que los ejes de las gráficas estén etiquetados?</li>
+            <li>¿Si la gráfica tiene tendencia lineal, agregó la ecuación que la linealiza?</li>
+            <li>¿Realizó el desarrollo físico-matemático de las ecuaciones usadas experimentalmente?</li>
+            <li>¿Realizó los respectivos procesos de linealización en gráficas que no presentan tendencia lineal?</li>
+        </ol>
+    
+        <h3>CONCLUSIONES:</h3>
+        <ol>
+            <li>¿Realizó una conclusión por cada parte del experimento?</li>
+            <li>¿Realizó una conclusión general de los objetivos basados en su experiencia y análisis de datos?</li>
+        </ol>
+    </section>
+    <section id="parametros-calificacion" class="container">
+        <h2>Parámetros para Revisar Formato de Calificación</h2>
+    
+        <h3>PRESENTACIÓN:</h3>
+        <ol>
+            <li>¿Utilizó el formato establecido en la plataforma Moodle?</li>
+            <li>¿El título corresponde al desarrollo del proyecto de investigación?</li>
+            <li>¿Incluyó el nombre de los integrantes del grupo (carrera y código)?</li>
+            <li>¿Incluyó el nombre del docente encargado de orientar el proyecto de investigación?</li>
+            <li>¿El informe tiene el Nombre grupo del laboratorio y subgrupo de laboratorio?</li>
+            <li>¿Las referencias de los textos consultados están de acuerdo a las normas APA?</li>
+        </ol>
+    
+        <h3>METODOLOGÍA:</h3>
+        <ol>
+            <li>¿Describió la ejecución del proyecto de investigación en pasado y de forma impersonal?</li>
+            <li>¿Realizó la inclusión de fotos, imágenes o gráficos del montaje empleado en el experimento?</li>
+        </ol>
+    
+        <h3>TRATAMIENTO DE DATOS:</h3>
+        <ol>
+            <li>¿Realizó la edición de ecuaciones y un cálculo mínimo para cada ecuación?</li>
+            <li>¿Reportó la incertidumbre de la medición junto a la tabla de datos?</li>
+            <li>¿Verificó que las tablas estén completas, etiquetadas y con sus respectivas unidades?</li>
+            <li>¿Revisó las unidades de medición con sus respectivas conversiones?</li>
+            <li>¿Verificó que los resultados estén acompañados de las unidades?</li>
+            <li>¿Chequeó las cifras significativas y redondeó de unidades? (recuerde que se reporta con la medida más inexacta)</li>
+        </ol>
+    
+        <h3>ANÁLISIS DE DATOS Y TRATAMIENTO DE GRÁFICAS:</h3>
+        <ol>
+            <li>¿Revisó que las imágenes lleven etiqueta y descripción?</li>
+            <li>¿Verificó que los ejes de las gráficas estén etiquetados?</li>
+            <li>¿Si la gráfica tiene tendencia lineal, agregó la ecuación que la linealiza?</li>
+            <li>¿Realizó el desarrollo físico-matemático de las ecuaciones usadas experimentalmente?</li>
+            <li>¿Realizó los respectivos procesos de linealización en gráficas que no presentan tendencia lineal?</li>
+        </ol>
+    
+        <h3>CONCLUSIONES:</h3>
+        <ol>
+            <li>¿Realizó una conclusión por cada parte del experimento?</li>
+            <li>¿Realizó una conclusión general de los objetivos basados en su experiencia y análisis de datos?</li>
+        </ol>
+    </section>
+        
+
+    <section id="ejemplos" class="container">
+        <h2>Ejemplos Prácticos</h2>
+        <p>A continuación, se presentan algunos ejemplos de cómo utilizar el simulador:</p>
+        <h3>Ejemplo 1: Calcular la Resistencia</h3>
+        <p>Si tienes una resistividad de <strong>1.68 × 10<sup>-8</sup> Ω·m</strong>, una longitud de <strong>2 m</strong> y un área de <strong>0.0001 m²</strong>, la resistencia se calcula como:</p>
+        <p><strong>R = ρ (L / A) = 1.68 × 10<sup>-8</sup> (2 / 0.0001) = 0.336 Ω</strong></p>
+
+        <h3>Ejemplo 2: Calcular la Resistividad</h3>
+        <p>Si tienes una resistencia de <strong>5 Ω</strong>, longitud de <strong>3 m</strong> y área de <strong>0.01 m²</strong>, la resistividad se calcula como:</p>
+        <p><strong>ρ = R (A / L) = 5 (0.01 / 3) = 0.0167 Ω·m</strong></p>
+    </section>
+    <section id="bibliografia" class="container">
+        <h2>Bibliografía</h2>
+        <ul>
+            <li>acmax. (9 de 08 de 2020). Cuatro puntas. Obtenido de <a href="https://acmax.mx/resistividad/" target="_blank">https://acmax.mx/resistividad/</a></li>
+            <li>cenafe. (29 de 06 de 2020). Resistividad. Obtenido de <a href="https://youtu.be/iEMmqmIhaRk?si=KmsQqESpWHgedT5t" target="_blank">https://youtu.be/iEMmqmIhaRk?si=KmsQqESpWHgedT5t</a></li>
+            <li>Mar Domínguez & Co. (s.f.). Tabla de resistividad. Obtenido de <a href="https://soloarduino.blogspot.com/2013/07/que-es-resistividad.html" target="_blank">https://soloarduino.blogspot.com/2013/07/que-es-resistividad.html</a></li>
+            <li>openstax. (s.f.). Resistividad. Obtenido de <a href="https://openstax.org/books/f%C3%ADsica-universitaria-volumen-2/pages/9-3-resistividad-y-resistencia" target="_blank">https://openstax.org/books/f%C3%ADsica-universitaria-volumen-2/pages/9-3-resistividad-y-resistencia</a></li>
+            <li>Profesores de tecnología. (s.f.). Obtenido de Ley de Ohm: cuadro de resistividad de semiconductores, metales, aislantes.</li>
+            <li>wikipedia. (27 de 05 de 2024). Resistividad. Obtenido de <a href="https://es.wikipedia.org/wiki/Resistividad" target="_blank">https://es.wikipedia.org/wiki/Resistividad</a></li>
+            <li>wikpedia. (23 de 08 de 2024). Método de cuatro puntas. Obtenido de <a href="https://es.wikipedia.org/wiki/Medici%C3%B3n_a_cuatro_puntas_(m%C3%A9todo_de_Kelvin)#:~:text=El%20m%C3%A9todo%20de%20medici%C3%B3n%20a,de%20medici%C3%B3n%20a%20dos%20puntas." target="_blank">https://es.wikipedia.org/wiki/Medici%C3%B3n_a_cuatro_puntas_(m%C3%A9todo_de_Kelvin)</a></li>
+        </ul>
+    </section>
+
+    <footer id="contacto" class="container">
+        <h3>Contacto</h3>
+        <p>Email: varelaj565@gmail.com</p>
+        <p>&copy; 2024 Juan David Varela Castillo- Juliana Arizmendy-Sebastian Estupiñan. Todos los derechos reservados.</p>
+    </footer>
+    
+
+    <script src="js/simulador.js"></script>
+</body>
+</html>
