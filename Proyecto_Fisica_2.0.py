@@ -1,68 +1,95 @@
-import tkinter as tk
-from tkinter import ttk
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import numpy as np
+import pygame
+import sys
 
-def calcular_resistencia():
-    try:
-        resistividad = float(entry_resistividad.get())
-        longitud = float(entry_longitud.get())
-        area = float(entry_area.get())
+# Inicialización de Pygame
+pygame.init()
 
-        if area <= 0 or longitud <= 0:
-            resultado.set("¡Longitud y área deben ser mayores que 0!")
-            return
+# Configuración de la ventana
+WIDTH, HEIGHT = 900, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Simulador de Resistividad")
 
-        resistencia = resistividad * (longitud / area)
-        resultado.set(f"Resistencia: {resistencia:.2f} Ω")
+# Colores
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BLUE = (0, 0, 255)
+RED = (255, 0, 0)
+GRAY = (200, 200, 200)
+LIGHT_BLUE = (173, 216, 230)
 
-        # Generar datos para gráfico
-        longitudes = np.linspace(0.1, 2 * longitud, 100)
-        resistencias = resistividad * (longitudes / area)
+# Variables iniciales
+resistividad = 1.0  # Ω·m
+longitud = 1.0  # m
+area = 1.0  # m²
+resistencia = 0.0  # Ω
 
-        # Actualizar gráfica
-        fig.clear()
-        ax = fig.add_subplot(111)
-        ax.plot(longitudes, resistencias, label="R = ρ (L/A)")
-        ax.set_xlabel("Longitud (L) [m]")
-        ax.set_ylabel("Resistencia (R) [Ω]")
-        ax.set_title("Relación Longitud vs Resistencia")
-        ax.legend()
-        ax.grid()
-        canvas.draw()
+# Fuente
+font = pygame.font.SysFont("Arial", 24)
 
-    except ValueError:
-        resultado.set("¡Por favor ingresa valores numéricos válidos!")
+# Función para calcular la resistencia
+def calcular_resistencia(rho, L, A):
+    if A <= 0:  # Evitar división por cero
+        return 0
+    return rho * (L / A)
 
-# Configurar la ventana principal
-root = tk.Tk()
-root.title("Simulador de Resistividad")
+# Función para dibujar sliders
+def draw_slider(x, y, value, label, min_value=0.1, max_value=10.0):
+    pygame.draw.rect(screen, GRAY, (x, y, 300, 10))  # Línea base
+    handle_x = x + int((value - min_value) / (max_value - min_value) * 300)
+    pygame.draw.circle(screen, BLUE, (handle_x, y + 5), 10)  # Controlador
+    value_text = font.render(f"{label}: {value:.2f}", True, BLACK)
+    screen.blit(value_text, (x, y - 30))
+    return handle_x
 
-# Variables de entrada
-entry_resistividad = tk.StringVar()
-entry_longitud = tk.StringVar()
-entry_area = tk.StringVar()
-resultado = tk.StringVar()
+# Bucle principal
+running = True
+dragging = None
+while running:
+    screen.fill(WHITE)
 
-# Interfaz
-ttk.Label(root, text="Resistividad (ρ) [Ω·m]:").grid(column=0, row=0, padx=5, pady=5, sticky="w")
-ttk.Entry(root, textvariable=entry_resistividad).grid(column=1, row=0, padx=5, pady=5)
+    # Eventos
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if abs(event.pos[0] - resistividad_x) < 15 and abs(event.pos[1] - 100) < 15:
+                dragging = "resistividad"
+            if abs(event.pos[0] - longitud_x) < 15 and abs(event.pos[1] - 200) < 15:
+                dragging = "longitud"
+            if abs(event.pos[0] - area_x) < 15 and abs(event.pos[1] - 300) < 15:
+                dragging = "area"
+        if event.type == pygame.MOUSEBUTTONUP:
+            dragging = None
 
-ttk.Label(root, text="Longitud (L) [m]:").grid(column=0, row=1, padx=5, pady=5, sticky="w")
-ttk.Entry(root, textvariable=entry_longitud).grid(column=1, row=1, padx=5, pady=5)
+    # Arrastrar sliders
+    if dragging:
+        mouse_x = pygame.mouse.get_pos()[0]
+        if dragging == "resistividad":
+            resistividad = max(0.1, min(10.0, (mouse_x - 50) / 300 * 10.0))
+        if dragging == "longitud":
+            longitud = max(0.1, min(10.0, (mouse_x - 50) / 300 * 10.0))
+        if dragging == "area":
+            area = max(0.1, min(10.0, (mouse_x - 50) / 300 * 10.0))
 
-ttk.Label(root, text="Área (A) [m²]:").grid(column=0, row=2, padx=5, pady=5, sticky="w")
-ttk.Entry(root, textvariable=entry_area).grid(column=1, row=2, padx=5, pady=5)
+    # Cálculo de resistencia
+    resistencia = calcular_resistencia(resistividad, longitud, area)
 
-ttk.Button(root, text="Calcular Resistencia", command=calcular_resistencia).grid(column=0, row=3, columnspan=2, pady=10)
+    # Dibujar etiquetas
+    resistencia_label = font.render(f"Resistencia (R): {resistencia:.2f} Ω", True, RED)
+    screen.blit(resistencia_label, (50, 400))
 
-ttk.Label(root, textvariable=resultado, foreground="blue").grid(column=0, row=4, columnspan=2, pady=5)
+    # Dibujar sliders
+    resistividad_x = draw_slider(50, 100, resistividad, "Resistividad (ρ)")
+    longitud_x = draw_slider(50, 200, longitud, "Longitud (L)")
+    area_x = draw_slider(50, 300, area, "Área (A)")
 
-# Gráfica integrada
-fig = Figure(figsize=(6, 4), dpi=100)
-canvas = FigureCanvasTkAgg(fig, master=root)
-canvas_widget = canvas.get_tk_widget()
-canvas_widget.grid(column=0, row=5, columnspan=2)
+    # Dibujar tubo representando resistencia
+    tube_width = int(50 + resistencia * 10)
+    pygame.draw.rect(screen, LIGHT_BLUE, (500, 250, tube_width, 50))
+    pygame.draw.rect(screen, BLUE, (500, 250, tube_width, 50), 3)  # Borde
 
-root.mainloop()
+    # Actualizar pantalla
+    pygame.display.flip()
+
+pygame.quit()
+sys.exit()
