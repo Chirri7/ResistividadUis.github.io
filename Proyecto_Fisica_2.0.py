@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import math
 
 # Inicialización de Pygame
 pygame.init()
@@ -23,6 +24,25 @@ resistividad = 1.0  # Ω·cm
 longitud = 10.0     # cm
 area = 7.0          # cm²
 resistencia = 0.0   # Ω
+
+#Datos de la tabla  
+datos_tabla = [
+    {"L(m)": 0.04, "R(Ohmios)": 0.5},
+    {"L(m)": 0.14, "R(Ohmios)": 0.6},
+    {"L(m)": 0.455, "R(Ohmios)": 0.7},
+    {"L(m)": 0.632, "R(Ohmios)": 0.8},
+    {"L(m)": 1.03, "R(Ohmios)": 0.9},
+]
+
+# Parámetros iniciales
+diametro = 0.01  # Diámetro en metros
+area = (math.pi * (diametro ** 2)) / 4
+valor_teorico = 7.66e-8  # Resistividad teórica en Ω·m
+
+# Cálculos dinámicos
+pendiente = 0.0
+resistividad_exp = 0.0
+error_porcentual = 0.0
 
 # Estados del programa
 MENU = "menu"
@@ -151,11 +171,80 @@ def draw_button(x, y, width, height, text):
     screen.blit(button_text, text_rect)
     return pygame.Rect(x, y, width, height)
 
-def mostrar_guia():
-    screen.fill(WHITE)
+
+
+def calcular_pendiente(datos):
+    try:
+        longitudes = [dato["L(m)"] for dato in datos if dato["L(m)"] != 0.0]
+        resistencias = [dato["R(Ohmios)"] for dato in datos if dato["R(Ohmios)"] != 0.0]
+        if len(longitudes) > 1:
+            return (resistencias[-1] - resistencias[0]) / (longitudes[-1] - longitudes[0])
+    except Exception as e:
+        print(f"Error al calcular pendiente: {e}")
+        return 0.0
+    return 0.0
+
+# Función para calcular resistividad experimental y error porcentual
+def calcular_resistividad_y_error(area, pendiente, valor_teorico):
+    try:
+        p_exp = area * pendiente
+        error = abs((valor_teorico - p_exp) / valor_teorico) * 100
+        return p_exp, error
+    except Exception as e:
+        print(f"Error al calcular resistividad: {e}")
+        return 0.0, 0.0
     
-    boton_volver = draw_button(50, HEIGHT - 100, 200, 50, "Volver al Menú")
-    return boton_volver
+# Función para mostrar la guía con las tablas
+def mostrar_guia():
+    global datos_tabla, pendiente, resistividad_exp, error_porcentual
+
+    screen.fill(WHITE)
+
+    # Título
+    titulo = font.render("Guía: Tablas y Cálculos", True, BLACK)
+    screen.blit(titulo, (WIDTH // 2 - titulo.get_width() // 2, 20))
+
+    # Encabezados de la tabla
+    encabezados = ["L(m)", "R(Ohmios)"]
+    x_inicio, y_inicio = 50, 100
+    for i, encabezado in enumerate(encabezados):
+        texto = font.render(encabezado, True, BLACK)
+        screen.blit(texto, (x_inicio + i * 200, y_inicio))
+
+    # Mostrar filas de la tabla
+    for i, fila in enumerate(datos_tabla):
+        for j, key in enumerate(encabezados):
+            valor = fila[key]
+            cuadro = pygame.Rect(x_inicio + j * 200, y_inicio + 40 + i * 40, 180, 30)
+            pygame.draw.rect(screen, GRAY, cuadro)
+            pygame.draw.rect(screen, BLACK, cuadro, 2)
+
+            # Texto dentro de la celda
+            texto = font.render(f"{valor:.3f}", True, BLACK)
+            screen.blit(texto, (cuadro.x + 10, cuadro.y + 5))
+
+    # Botón para añadir filas
+    boton_añadir = draw_button(x_inicio, y_inicio + 40 + len(datos_tabla) * 40, 200, 40, "Añadir Fila")
+
+    # Calcular valores dinámicos
+    pendiente = calcular_pendiente(datos_tabla)
+    resistividad_exp, error_porcentual = calcular_resistividad_y_error(area, pendiente, valor_teorico)
+
+    # Mostrar resultados
+    resultados = [
+        f"Área (A): {area:.6e} m²",
+        f"Pendiente: {pendiente:.3f}",
+        f"Resistividad Experimental: {resistividad_exp:.6e} Ω·m",
+        f"Error %: {error_porcentual:.2f}%",
+    ]
+    for i, resultado in enumerate(resultados):
+        texto = font.render(resultado, True, BLACK)
+        screen.blit(texto, (WIDTH // 2 - 300, 400 + i * 30))
+
+    # Botón para volver al menú
+    boton_volver = draw_button(WIDTH - 250, HEIGHT - 100, 200, 50, "Volver al Menú")
+
+    return {"añadir": boton_añadir, "volver": boton_volver}
 
 # Pantalla de menú
 def mostrar_menu():
@@ -181,7 +270,7 @@ while running:
     elif estado_actual == CALCULAR_RESISTENCIA:
         boton_volver, boton_reset, resistividad_x, longitud_x, area_x = calcular_resistencia_interfaz()
     elif estado_actual == GUIA:
-        boton_volver = mostrar_guia()
+        botones = mostrar_guia()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -205,8 +294,11 @@ while running:
                 elif abs(event.pos[0] - area_x) < 15 and abs(event.pos[1] - 350) < 15:
                     dragging = "area"
             elif estado_actual == GUIA:
-                if boton_volver.collidepoint(event.pos):
+                # Verificar botones en la guía
+                if botones["volver"].collidepoint(event.pos):
                     estado_actual = MENU
+                elif botones["añadir"].collidepoint(event.pos):
+                    datos_tabla.append({"L(m)": 0.0, "R(Ohmios)": 0.0})
 
         elif event.type == pygame.MOUSEBUTTONUP:
             dragging = None
