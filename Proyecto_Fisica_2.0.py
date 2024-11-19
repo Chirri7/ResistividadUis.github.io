@@ -27,6 +27,7 @@ resistencia = 0.0   # Ω
 # Estados del programa
 MENU = "menu"
 CALCULAR_RESISTENCIA = "calcular_resistencia"
+GUIA = "guia"
 
 # Fuente
 font = pygame.font.SysFont("Arial", 24)
@@ -150,13 +151,20 @@ def draw_button(x, y, width, height, text):
     screen.blit(button_text, text_rect)
     return pygame.Rect(x, y, width, height)
 
+def mostrar_guia():
+    screen.fill(WHITE)
+    
+    boton_volver = draw_button(50, HEIGHT - 100, 200, 50, "Volver al Menú")
+    return boton_volver
+
 # Pantalla de menú
 def mostrar_menu():
     screen.fill(WHITE)
     titulo = font.render("Simulador de Resistividad", True, BLACK)
     screen.blit(titulo, (WIDTH // 2 - titulo.get_width() // 2, 50))
     boton_resistencia = draw_button(WIDTH // 2 - 100, 150, 200, 50, "Calcular Resistencia")
-    return {"resistencia": boton_resistencia}
+    boton_guia = draw_button(WIDTH // 2 - 100, 250, 200, 50, "Guía de Programación")
+    return {"resistencia": boton_resistencia,"guia":boton_guia}
 
 # Bucle principal
 estado_actual = MENU
@@ -172,6 +180,8 @@ while running:
         botones = mostrar_menu()
     elif estado_actual == CALCULAR_RESISTENCIA:
         boton_volver, boton_reset, resistividad_x, longitud_x, area_x = calcular_resistencia_interfaz()
+    elif estado_actual == GUIA:
+        boton_volver = mostrar_guia()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -180,6 +190,8 @@ while running:
             if estado_actual == MENU:
                 if botones["resistencia"].collidepoint(event.pos):
                     estado_actual = CALCULAR_RESISTENCIA
+                elif botones["guia"].collidepoint(event.pos):
+                    estado_actual = GUIA
             elif estado_actual == CALCULAR_RESISTENCIA:
                 if boton_volver.collidepoint(event.pos):
                     estado_actual = MENU
@@ -192,6 +204,10 @@ while running:
                     dragging = "longitud"
                 elif abs(event.pos[0] - area_x) < 15 and abs(event.pos[1] - 350) < 15:
                     dragging = "area"
+            elif estado_actual == GUIA:
+                if boton_volver.collidepoint(event.pos):
+                    estado_actual = MENU
+
         elif event.type == pygame.MOUSEBUTTONUP:
             dragging = None
 
