@@ -203,34 +203,51 @@ def mostrar_guia():
     # Título
     titulo = font.render("Guía: Tablas y Cálculos", True, BLACK)
     screen.blit(titulo, (WIDTH // 2 - titulo.get_width() // 2, 20))
-
-    # Encabezados de la tabla
+    
+    # Dibujar una tabla estructurada
     encabezados = ["L(m)", "R(Ohmios)"]
     x_inicio, y_inicio = 50, 100
+    ancho_celda, alto_celda = 200, 40
+    
+    # Dibujar encabezados
     for i, encabezado in enumerate(encabezados):
+        pygame.draw.rect(screen, BLACK, (x_inicio + i * ancho_celda, y_inicio, ancho_celda, alto_celda), 2)
         texto = font.render(encabezado, True, BLACK)
-        screen.blit(texto, (x_inicio + i * 200, y_inicio))
-
-    # Mostrar filas de la tabla
+        screen.blit(texto, (x_inicio + i * ancho_celda + 10, y_inicio + 10))
+        
+     # Dibujar filas de datos
     for i, fila in enumerate(datos_tabla):
         for j, key in enumerate(encabezados):
             valor = fila[key]
-            cuadro = pygame.Rect(x_inicio + j * 200, y_inicio + 40 + i * 40, 180, 30)
-            pygame.draw.rect(screen, GRAY, cuadro)
-            pygame.draw.rect(screen, BLACK, cuadro, 2)
+            celda_x = x_inicio + j * ancho_celda
+            celda_y = y_inicio + (i + 1) * alto_celda
+            pygame.draw.rect(screen, BLACK, (celda_x, celda_y, ancho_celda, alto_celda), 2)
 
-            # Texto dentro de la celda
+            # Texto dentro de cada celda
             texto = font.render(f"{valor:.3f}", True, BLACK)
-            screen.blit(texto, (cuadro.x + 10, cuadro.y + 5))
+            screen.blit(texto, (celda_x + 10, celda_y + 10))
 
     # Botón para añadir filas
     boton_añadir = draw_button(x_inicio, y_inicio + 40 + len(datos_tabla) * 40, 200, 40, "Añadir Fila")
+    
+    # Botón para eliminar filas
+    boton_eliminar = draw_button(x_inicio + ancho_celda + 10, y_inicio + (len(datos_tabla) + 1) * alto_celda, ancho_celda, alto_celda, "Eliminar Fila")
 
     # Calcular valores dinámicos
     pendiente = calcular_pendiente(datos_tabla)
     resistividad_exp, error_porcentual = calcular_resistividad_y_error(area, pendiente, valor_teorico)
+    
+    # Dibujar caja de resultados
+    resultados_x = x_inicio + len(encabezados) * ancho_celda + 50
+    resultados_y = y_inicio
+    ancho_resultados = 400
+    alto_resultados = 200
+    
+    # Fondo de la caja de resultados
+    pygame.draw.rect(screen, GRAY, (resultados_x, resultados_y, ancho_resultados, alto_resultados))
+    pygame.draw.rect(screen, BLACK, (resultados_x, resultados_y, ancho_resultados, alto_resultados), 2)
 
-    # Mostrar resultados
+    # Mostrar resultados dentro de la caja
     resultados = [
         f"Área (A): {area:.6e} m²",
         f"Pendiente: {pendiente:.3f}",
@@ -239,12 +256,12 @@ def mostrar_guia():
     ]
     for i, resultado in enumerate(resultados):
         texto = font.render(resultado, True, BLACK)
-        screen.blit(texto, (WIDTH // 2 - 300, 400 + i * 30))
+        screen.blit(texto, (resultados_x + 10, resultados_y + 10 + i * 40))
 
     # Botón para volver al menú
     boton_volver = draw_button(WIDTH - 250, HEIGHT - 100, 200, 50, "Volver al Menú")
 
-    return {"añadir": boton_añadir, "volver": boton_volver}
+    return {"añadir": boton_añadir,"eliminar": boton_eliminar,"volver": boton_volver}
 
 # Pantalla de menú
 def mostrar_menu():
@@ -299,6 +316,9 @@ while running:
                     estado_actual = MENU
                 elif botones["añadir"].collidepoint(event.pos):
                     datos_tabla.append({"L(m)": 0.0, "R(Ohmios)": 0.0})
+                elif botones["eliminar"].collidepoint(event.pos):
+                    if len(datos_tabla) > 0:  # Verificar que haya filas antes de eliminar
+                        datos_tabla.pop()  # Eliminar la última fila
 
         elif event.type == pygame.MOUSEBUTTONUP:
             dragging = None
