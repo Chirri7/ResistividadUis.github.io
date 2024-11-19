@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 # Inicialización de Pygame
 pygame.init()
@@ -15,12 +16,13 @@ BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 BLUE = (0, 0, 255)
 BROWN = (139, 69, 19)
+RED = (255, 0, 0)
 
 # Variables iniciales
 resistividad = 1.0  # Ω·cm
-longitud = 10.0  # cm
-area = 7.0  # cm²
-resistencia = 0.0  # Ω
+longitud = 10.0     # cm
+area = 7.0          # cm²
+resistencia = 0.0   # Ω
 
 # Estados del programa
 MENU = "menu"
@@ -28,6 +30,39 @@ CALCULAR_RESISTENCIA = "calcular_resistencia"
 
 # Fuente
 font = pygame.font.SysFont("Arial", 24)
+
+# Clase para representar una carga
+class Carga:
+    def __init__(self, x, y, velocidad):
+        self.x = x
+        self.y = y
+        self.velocidad = velocidad
+
+    def mover(self, limite_derecho, limite_izquierdo, limite_superior, limite_inferior):
+        self.x += self.velocidad
+        if self.x > limite_derecho:  # Si sale por la derecha, reaparece a la izquierda
+            self.x = limite_izquierdo
+            self.y = random.randint(limite_superior, limite_inferior)  # Reposicionar dentro del área
+        # Asegurar que la carga esté dentro de los límites verticales
+        if self.y < limite_superior or self.y > limite_inferior:
+            self.y = random.randint(limite_superior, limite_inferior)
+
+    def dibujar(self):
+        pygame.draw.circle(screen, RED, (int(self.x), int(self.y)), 5)
+
+# Crear una lista de cargas
+cargas = []
+
+def inicializar_cargas(num_cargas, x_inicio, y_inicio, longitud_px, altura_px):
+    global cargas
+    cargas = []
+    limite_superior = y_inicio - altura_px // 2
+    limite_inferior = y_inicio + altura_px // 2
+    for _ in range(num_cargas):
+        x = random.randint(x_inicio, x_inicio + longitud_px)
+        y = random.randint(limite_superior, limite_inferior)
+        velocidad = random.uniform(1, 3)  # Velocidad aleatoria de las cargas
+        cargas.append(Carga(x, y, velocidad))
 
 # Función para calcular la resistencia
 def calcular_resistencia(rho, L, A):
@@ -44,13 +79,33 @@ def draw_slider(x, y, value, label, min_value=0.1, max_value=10.0, unit=""):
     screen.blit(value_text, (x, y - 30))
     return handle_x
 
-# Función para dibujar el material cilíndrico
-def dibujar_material(x, y, longitud, area):
+# Función para dibujar el material cilíndrico con cargas dentro
+def dibujar_material_cilindrico(x, y, longitud, area):
     longitud_px = int(20 + longitud * 20)  # Escala para la longitud
-    altura_px = int(10 + area * 10)  # Escala para el área
+    altura_px = int(10 + area * 10)        # Escala para el área
+
+    # Dibujar el cuerpo del cilindro (rectángulo)
     rect = pygame.Rect(x, y - altura_px // 2, longitud_px, altura_px)
-    pygame.draw.rect(screen, BROWN, rect)  # Dibujar el cilindro
-    pygame.draw.rect(screen, BLACK, rect, 2)  # Bordes del cilindro
+    pygame.draw.rect(screen, BROWN, rect)  # Dibujar el cuerpo
+    pygame.draw.rect(screen, BLACK, rect, 2)  # Bordes del cuerpo
+
+    # Dibujar los extremos del cilindro (óvalos)
+    pygame.draw.ellipse(screen, BROWN, (x - altura_px // 2, y - altura_px // 2, altura_px, altura_px))
+    pygame.draw.ellipse(screen, BROWN, (x + longitud_px - altura_px // 2, y - altura_px // 2, altura_px, altura_px))
+
+    # Bordes de los extremos
+    pygame.draw.ellipse(screen, BLACK, (x - altura_px // 2, y - altura_px // 2, altura_px, altura_px), 2)
+    pygame.draw.ellipse(screen, BLACK, (x + longitud_px - altura_px // 2, y - altura_px // 2, altura_px, altura_px), 2)
+
+    # Dibujar cargas dentro del cilindro
+    limite_izquierdo = x
+    limite_derecho = x + longitud_px
+    limite_superior = y - altura_px // 2
+    limite_inferior = y + altura_px // 2
+
+    for carga in cargas:
+        carga.mover(limite_derecho, limite_izquierdo, limite_superior, limite_inferior)  # Limitar cargas al interior
+        carga.dibujar()
 
 # Pantalla de calcular resistencia
 def calcular_resistencia_interfaz():
@@ -77,8 +132,8 @@ def calcular_resistencia_interfaz():
     resistencia_label = font.render(f"Resistencia = {resistencia_local:.2f} Ω", True, BLACK)
     screen.blit(resistencia_label, (50, 450))
 
-    # Dibujar material dinámico
-    dibujar_material(800, 300, longitud, area)
+    # Dibujar material dinámico como un cilindro con cargas
+    dibujar_material_cilindrico(800, 300, longitud, area)
 
     # Botones
     boton_volver = draw_button(50, 500, 200, 50, "Volver al Menú")
@@ -107,6 +162,10 @@ def mostrar_menu():
 estado_actual = MENU
 running = True
 dragging = None
+
+# Inicializar cargas con dimensiones iniciales
+inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10))
+
 while running:
     screen.fill(WHITE)
     if estado_actual == MENU:
@@ -126,6 +185,7 @@ while running:
                     estado_actual = MENU
                 elif boton_reset.collidepoint(event.pos):
                     resistividad, longitud, area = 1.0, 10.0, 7.0
+                    inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10))  # Reiniciar cargas
                 elif abs(event.pos[0] - resistividad_x) < 15 and abs(event.pos[1] - 150) < 15:
                     dragging = "resistividad"
                 elif abs(event.pos[0] - longitud_x) < 15 and abs(event.pos[1] - 250) < 15:
@@ -141,8 +201,10 @@ while running:
             resistividad = max(0.1, min(10.0, (mouse_x - 50) / 300 * 10.0))
         elif dragging == "longitud":
             longitud = max(0.1, min(20.0, (mouse_x - 50) / 300 * 20.0))
+            inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10))  # Actualizar cargas
         elif dragging == "area":
             area = max(0.1, min(15.0, (mouse_x - 50) / 300 * 15.0))
+            inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10))  # Actualizar cargas
 
     pygame.display.flip()
 
