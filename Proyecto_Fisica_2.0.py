@@ -6,13 +6,18 @@ import math
 # Inicialización de Pygame
 pygame.init()
 
+pygame.event.set_allowed([pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.QUIT])
+
 # Configuración de la ventana
 WIDTH, HEIGHT = 1300, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Simulador de Resistividad")
 
+# Forzar el enfoque en la ventana de Pygame
+pygame.event.set_grab(True)
+
 # Colores
-WHITE = (255, 255, 255)
+WHITE = (255, 255, 255)     
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 BLUE = (0, 0, 255)
@@ -39,13 +44,7 @@ materiales = {
 #DATOS DE GUIA
 
 #Datos de la tabla  
-datos_tabla = [
-    {"L(m)": 0.04, "R(Ohmios)": 0.5},
-    {"L(m)": 0.14, "R(Ohmios)": 0.6},
-    {"L(m)": 0.455, "R(Ohmios)": 0.7},
-    {"L(m)": 0.632, "R(Ohmios)": 0.8},
-    {"L(m)": 1.03, "R(Ohmios)": 0.9},
-]
+datos_tabla = []
 selected_cell = None  # Celda seleccionada
 input_text = ""  # Texto temporal para entrada
 
@@ -256,6 +255,8 @@ def mostrar_guia():
     
     # Dibujar una tabla estructurada
     encabezados = ["L(m)", "R(Ohmios)"]
+    x_inicio, y_inicio = 50, 100
+    ancho_celda, alto_celda = 200, 40
     
     # Dibujar encabezados
     for i, encabezado in enumerate(encabezados):
@@ -269,15 +270,21 @@ def mostrar_guia():
             celda_x = x_inicio + col_idx * ancho_celda
             celda_y = y_inicio + (fila_idx + 1) * alto_celda
 
-            # Dibuja la celda
+            # Dibujar la celda
             pygame.draw.rect(screen, BLACK, (celda_x, celda_y, ancho_celda, alto_celda), 2)
-            valor = fila[key]
-            texto = font.render(f"{valor:.3f}" if isinstance(valor, float) else str(valor), True, BLACK)
-            screen.blit(texto, (celda_x + 10, celda_y + 10))
-            
-            # Resaltar celda seleccionada
+        
+            # Mostrar `input_text` dinámicamente si la celda está seleccionada
+            if selected_cell == (fila_idx, col_idx):
+                texto = font.render(input_text, True, BLUE)
+            else:
+                valor = fila[key]
+                texto = font.render(f"{valor:.3f}" if isinstance(valor, float) else str(valor), True, BLACK)
+                screen.blit(texto, (celda_x + 10, celda_y + 10))
+
+            # Resaltar la celda seleccionada
             if selected_cell == (fila_idx, col_idx):
                 pygame.draw.rect(screen, BLUE, (celda_x, celda_y, ancho_celda, alto_celda), 3)
+
 
 
     # Botón para añadir filas
@@ -341,7 +348,11 @@ else:
 
 inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10), resistividad_experimental)
 
+
+
+running=True
 while running:
+    pygame.event.set_grab(True)
     screen.fill(WHITE)
     if estado_actual == MENU:
         botones = mostrar_menu()
@@ -350,19 +361,25 @@ while running:
     elif estado_actual == GUIA:
         botones, x_inicio, y_inicio, ancho_celda, alto_celda = mostrar_guia()
 
+    #Mnaejo de eventos
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        #Evento de click
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = event.pos
+            
             if estado_actual == MENU:
                 if botones["resistencia"].collidepoint(event.pos):
                     estado_actual = CALCULAR_RESISTIVIDAD
                 elif botones["guia"].collidepoint(event.pos):
                     estado_actual = GUIA
+                    
             elif estado_actual == CALCULAR_RESISTIVIDAD:
                 if boton_volver.collidepoint(event.pos):
                     estado_actual = MENU
                 elif boton_reset.collidepoint(event.pos):
+                    #Reiniciar valores  
                     resistividad, longitud, area = 1.0, 10.0, 7.0
                     inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10), resistividad_experimental)
                 elif abs(event.pos[0] - longitud_x) < 15 and abs(event.pos[1] - 250) < 15:
@@ -380,30 +397,17 @@ while running:
                     resistividad_teorica = datos_material["resistividad"]
                     inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10), resistividad_experimental)
             elif estado_actual == GUIA:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_x, mouse_y = event.pos
-                    # Determinar si el clic está dentro de la tabla
+                #Detectar click dentro de la tabla  
+                if len(datos_tabla) > 0:  # Verificar que la tabla no esté vacía
                     if x_inicio <= mouse_x <= x_inicio + len(datos_tabla[0]) * ancho_celda:
                         if y_inicio + alto_celda <= mouse_y <= y_inicio + (len(datos_tabla) + 1) * alto_celda:
                             col_idx = (mouse_x - x_inicio) // ancho_celda
                             fila_idx = (mouse_y - y_inicio - alto_celda) // alto_celda
                             selected_cell = (fila_idx, col_idx)
                             input_text = ""  # Limpiar texto previo
-                elif event.type == pygame.KEYDOWN and selected_cell is not None:
-                    if event.key == pygame.K_RETURN:  # Guardar al presionar Enter
-                        fila, col = selected_cell
-                        encabezado = ["L(m)", "R(Ohmios)"][col]
-                        try:
-                            # Intentar convertir la entrada en un número flotante
-                            datos_tabla[fila][encabezado] = float(input_text)
-                        except ValueError:
-                            pass  # Ignorar si el valor no es válido
-                        selected_cell = None  # Deseleccionar celda
-                        input_text = ""  # Limpiar texto
-                    elif event.key == pygame.K_BACKSPACE:  # Borrar último carácter
-                        input_text = input_text[:-1]
-                    else:
-                        input_text += event.unicode  # Agregar carácter
+                            print(f"Celda seleccionada: {selected_cell}")
+                else:
+                    print("La tabla está vacía, añade una fila para interactuar.")
                 # Verificar botones en la guía
                 if botones["volver"].collidepoint(event.pos):
                     estado_actual = MENU
@@ -411,8 +415,27 @@ while running:
                     datos_tabla.append({"L(m)": 0.0, "R(Ohmios)": 0.0})
                 elif botones["eliminar"].collidepoint(event.pos):
                     if len(datos_tabla) > 0:  # Verificar que haya filas antes de eliminar
-                        datos_tabla.pop()  # Eliminar la última fila
-
+                        datos_tabla.pop()  # Eliminar la última fila     
+                               
+        #Eventos de teclado         
+        elif event.type == pygame.KEYDOWN and selected_cell is not None:
+            print(f"Tecla presionada: {event.unicode}")
+            fila, col = selected_cell
+            encabezado = ["L(m)", "R(Ohmios)"][col]
+            if event.key == pygame.K_RETURN:  # Guardar valor al presionar Enter
+                try:
+                    datos_tabla[fila][encabezado] = float(input_text)  # Convierte y guarda
+                except ValueError:
+                    print(f"Valor no válido: {input_text}")
+                selected_cell = None  # Deseleccionar celda
+                input_text = ""  # Limpiar texto
+            elif event.key == pygame.K_BACKSPACE:  # Borrar último carácter
+                input_text = input_text[:-1]
+            else:
+                input_text += event.unicode  # Agregar carácter
+                print(f"Texto actual: {input_text}")
+           
+            
         elif event.type == pygame.MOUSEBUTTONUP:
             dragging = None
 
