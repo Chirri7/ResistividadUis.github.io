@@ -71,12 +71,17 @@ class Carga:
         self.x = x
         self.y = y
         self.velocidad = velocidad
+    
+    def actualizar_velocidad(self, resistividad):
+        # Ajusta la velocidad en función de la resistividad (a mayor resistividad, menor velocidad)
+        self.velocidad = max(0.1, 1.0 / (resistividad * 1e8))  # Normalización para ajustar la escala
+
 
     def mover(self, limite_derecho, limite_izquierdo, limite_superior, limite_inferior):
         self.x += self.velocidad
         if self.x > limite_derecho:  # Si sale por la derecha, reaparece a la izquierda
             self.x = limite_izquierdo
-            self.y = random.randint(limite_superior, limite_inferior)  # Reposicionar dentro del área
+            
         # Asegurar que la carga esté dentro de los límites verticales
         if self.y < limite_superior or self.y > limite_inferior:
             self.y = random.randint(limite_superior, limite_inferior)
@@ -179,6 +184,10 @@ def calcular_resistividad_interfaz():
 
     screen.blit(resistividad_teorica_label, (700, 430))
     screen.blit(resistividad_experimental_label, (700, 470))
+    
+    # Actualizar velocidades de las cargas
+    for carga in cargas:
+        carga.actualizar_velocidad(resistividad_teorica)
 
     # Dibujar material dinámico como un cilindro con cargas
     dibujar_material_cilindrico(800, 300, longitud, area,color_material)
@@ -189,16 +198,14 @@ def calcular_resistividad_interfaz():
 
     return boton_volver, boton_reset, longitud_x, area_x, selector_rect      
 
-def inicializar_cargas(num_cargas, x_inicio, y_inicio, longitud_px, altura_px):
+def inicializar_cargas(num_cargas, x_inicio, y_inicio, longitud_px, altura_px,resistividad):
     global cargas
     cargas = []
-    limite_superior = y_inicio - altura_px // 2
-    limite_inferior = y_inicio + altura_px // 2
+    y_centro = y_inicio  # Mantener las cargas centradas verticalmente
     for _ in range(num_cargas):
-        x = random.randint(x_inicio, x_inicio + longitud_px)
-        y = random.randint(limite_superior, limite_inferior)
-        velocidad = random.uniform(1, 3)  # Velocidad aleatoria de las cargas
-        cargas.append(Carga(x, y, velocidad))
+        x = random.randint(x_inicio, x_inicio + longitud_px)  # Posición horizontal aleatoria
+        velocidad = max(0.2, 1.0 / (resistividad * 1e8))  # Velocidad basada en la resistividad
+        cargas.append(Carga(x, y_centro, velocidad))
 
 # Función para dibujar botones
 def draw_button(x, y, width, height, text):
@@ -208,8 +215,6 @@ def draw_button(x, y, width, height, text):
     text_rect = button_text.get_rect(center=(x + width / 2, y + height / 2))
     screen.blit(button_text, text_rect)
     return pygame.Rect(x, y, width, height)
-
-
 
 def calcular_pendiente(datos):
     try:
@@ -315,8 +320,16 @@ estado_actual = MENU
 running = True
 dragging = None
 
-# Inicializar cargas con dimensiones iniciales
-inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10))
+# Obtén los datos del material seleccionado
+datos_material = materiales[material_seleccionado]
+resistencia_material = datos_material["resistencia"]  # Resistencia característica del material
+
+if longitud > 0:
+    resistividad_experimental = resistencia_material * (area / longitud)
+else:
+    resistividad_experimental = 0  # Manejo de longitud cero para evitar división por cero
+
+inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10), resistividad_experimental)
 
 while running:
     screen.fill(WHITE)
@@ -341,7 +354,7 @@ while running:
                     estado_actual = MENU
                 elif boton_reset.collidepoint(event.pos):
                     resistividad, longitud, area = 1.0, 10.0, 7.0
-                    inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10))  # Reiniciar cargas
+                    inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10), resistividad_experimental)
                 elif abs(event.pos[0] - longitud_x) < 15 and abs(event.pos[1] - 250) < 15:
                     dragging = "longitud"
                 elif abs(event.pos[0] - area_x) < 15 and abs(event.pos[1] - 350) < 15:
@@ -351,6 +364,11 @@ while running:
                     material_keys = list(materiales.keys())
                     current_index = material_keys.index(material_seleccionado)
                     material_seleccionado = material_keys[(current_index + 1) % len(material_keys)]
+                    
+                    # Actualizar resistividad y reinicializar cargas
+                    datos_material = materiales[material_seleccionado]
+                    resistividad_teorica = datos_material["resistividad"]
+                    inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10), resistividad_experimental)
             elif estado_actual == GUIA:
                 # Verificar botones en la guía
                 if botones["volver"].collidepoint(event.pos):
@@ -368,10 +386,10 @@ while running:
         mouse_x = pygame.mouse.get_pos()[0]
         if dragging == "longitud":
             longitud = max(0.1, min(20.0, (mouse_x - 50) / 300 * 20.0))
-            inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10))  # Actualizar cargas
+            inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10), resistividad_experimental)
         elif dragging == "area":
             area = max(0.1, min(15.0, (mouse_x - 50) / 300 * 15.0))
-            inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10))  # Actualizar cargas
+            inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10), resistividad_experimental)
 
     pygame.display.flip()
 
