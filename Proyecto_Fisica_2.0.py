@@ -149,7 +149,7 @@ def calcular_resistividad_interfaz():
 
     # Dibujar sliders interactivos
     longitud_x = draw_slider(50, 250, longitud, "Longitud (L)", 0.1, 20.0, "cm")
-    area_x = draw_slider(50, 350, area, "Área (A)", 0.1, 15.0, "cm²")
+    area_x = draw_slider(50, 350, area, "Área (A)", 0.1, 15, "cm²")
     
     # Dibujar el selector de materiales
     selector_rect = draw_material_selector(50, 100, materiales, material_seleccionado)
