@@ -279,7 +279,8 @@ def mostrar_guia():
             else:
                 valor = fila[key]
                 texto = font.render(f"{valor:.3f}" if isinstance(valor, float) else str(valor), True, BLACK)
-                screen.blit(texto, (celda_x + 10, celda_y + 10))
+            
+            screen.blit(texto, (celda_x + 10, celda_y + 10))
 
             # Resaltar la celda seleccionada
             if selected_cell == (fila_idx, col_idx):
