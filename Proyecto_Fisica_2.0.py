@@ -30,10 +30,10 @@ resistencia = 0.0   # Ω
 material_seleccionado = "Cobre"
 #Materiales
 materiales = {
-    "Cobre": 1.68e-8,      # Ω·m
-    "Aluminio": 2.82e-8,   # Ω·m
-    "Oro": 2.44e-8,        # Ω·m
-    "Plata": 1.59e-8       # Ω·m
+    "Cobre": {"resistividad": 1.71e-8, "resistencia": 0.5},  # Ω·m, Ω
+    "Aluminio": {"resistividad": 2.82e-8, "resistencia": 0.6},  # Ω·m, Ω
+    "Oro": {"resistividad": 2.35e-8, "resistencia": 0.7},  # Ω·m, Ω
+    "Plata": {"resistividad": 1.59e-8, "resistencia": 0.4}  # Ω·m, Ω
 }
 
 #DATOS DE GUIA
@@ -157,16 +157,18 @@ def calcular_resistividad_interfaz():
     # Obtener la resistividad teórica del material seleccionado
     resistividad_teorica = materiales[material_seleccionado]
     
+    # Obtener datos del material seleccionado
+    datos_material = materiales[material_seleccionado]
+    resistividad_teorica = datos_material["resistividad"]  # Resistividad teórica del material
+    resistencia_material = datos_material["resistencia"]  # Resistencia característica del material
+
     # Convertir unidades de longitud y área
     longitud_metros = longitud / 100  # Convertir de cm a m
     area_metros = area / 10000        # Convertir de cm² a m²
-    
-    # Fijar un valor base de resistencia (puedes hacerlo dinámico en el futuro)
-    resistencia_base = 1.0  # Resistencia fija en Ω (puedes cambiarla según lo desees)
 
-    # Evitar división por cero y calcular la resistividad experimental
+    # Calcular resistividad experimental
     if longitud_metros > 0:
-        resistividad_experimental = resistencia_base * (area_metros / longitud_metros)
+        resistividad_experimental = resistencia_material * (area_metros / longitud_metros)
     else:
         resistividad_experimental = 0
         
@@ -176,13 +178,6 @@ def calcular_resistividad_interfaz():
 
     screen.blit(resistividad_teorica_label, (700, 430))
     screen.blit(resistividad_experimental_label, (700, 470))
-    
-    # Actualizar la resistividad según el material seleccionado
-    resistividad = materiales[material_seleccionado]
-    
-    # Mostrar la resistividad actual
-    resistividad_label = font.render(f"Resistividad: {resistividad:.2e} Ω·m", True, BLACK)
-    screen.blit(resistividad_label, (50, 400))
 
     # Dibujar material dinámico como un cilindro con cargas
     dibujar_material_cilindrico(800, 300, longitud, area)
