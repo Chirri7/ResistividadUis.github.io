@@ -30,10 +30,10 @@ resistencia = 0.0   # Ω
 material_seleccionado = "Cobre"
 #Materiales
 materiales = {
-    "Cobre": {"resistividad": 1.71e-8, "resistencia": 0.5},  # Ω·m, Ω
-    "Aluminio": {"resistividad": 2.82e-8, "resistencia": 0.6},  # Ω·m, Ω
-    "Oro": {"resistividad": 2.35e-8, "resistencia": 0.7},  # Ω·m, Ω
-    "Plata": {"resistividad": 1.59e-8, "resistencia": 0.4}  # Ω·m, Ω
+    "Cobre": {"resistividad": 1.71e-8, "resistencia": 0.5, "color": (184, 115, 51)},  # Color cobrizo
+    "Aluminio": {"resistividad": 2.82e-8, "resistencia": 0.6, "color": (211, 211, 211)},  # Color plateado
+    "Oro": {"resistividad": 2.35e-8, "resistencia": 0.7, "color": (255, 215, 0)},  # Color dorado
+    "Plata": {"resistividad": 1.59e-8, "resistencia": 0.4, "color": (192, 192, 192)}  # Color gris plateado
 }
 
 #DATOS DE GUIA
@@ -96,18 +96,18 @@ def draw_slider(x, y, value, label, min_value=0.1, max_value=10.0, unit=""):
     screen.blit(value_text, (x, y - 30))
     return handle_x
 # Función para dibujar el material cilíndrico con cargas dentro
-def dibujar_material_cilindrico(x, y, longitud, area):
+def dibujar_material_cilindrico(x, y, longitud, area,color):
     longitud_px = int(20 + longitud * 20)  # Escala para la longitud
     altura_px = int(10 + area * 10)        # Escala para el área
 
     # Dibujar el cuerpo del cilindro (rectángulo)
     rect = pygame.Rect(x, y - altura_px // 2, longitud_px, altura_px)
-    pygame.draw.rect(screen, BROWN, rect)  # Dibujar el cuerpo
+    pygame.draw.rect(screen, color, rect)  # Dibujar el cuerpo
     pygame.draw.rect(screen, BLACK, rect, 2)  # Bordes del cuerpo
 
     # Dibujar los extremos del cilindro (óvalos)
-    pygame.draw.ellipse(screen, BROWN, (x - altura_px // 2, y - altura_px // 2, altura_px, altura_px))
-    pygame.draw.ellipse(screen, BROWN, (x + longitud_px - altura_px // 2, y - altura_px // 2, altura_px, altura_px))
+    pygame.draw.ellipse(screen, color, (x - altura_px // 2, y - altura_px // 2, altura_px, altura_px))
+    pygame.draw.ellipse(screen, color, (x + longitud_px - altura_px // 2, y - altura_px // 2, altura_px, altura_px))
 
     # Bordes de los extremos
     pygame.draw.ellipse(screen, BLACK, (x - altura_px // 2, y - altura_px // 2, altura_px, altura_px), 2)
@@ -161,6 +161,7 @@ def calcular_resistividad_interfaz():
     datos_material = materiales[material_seleccionado]
     resistividad_teorica = datos_material["resistividad"]  # Resistividad teórica del material
     resistencia_material = datos_material["resistencia"]  # Resistencia característica del material
+    color_material = datos_material["color"]
 
     # Convertir unidades de longitud y área
     longitud_metros = longitud / 100  # Convertir de cm a m
@@ -180,7 +181,7 @@ def calcular_resistividad_interfaz():
     screen.blit(resistividad_experimental_label, (700, 470))
 
     # Dibujar material dinámico como un cilindro con cargas
-    dibujar_material_cilindrico(800, 300, longitud, area)
+    dibujar_material_cilindrico(800, 300, longitud, area,color_material)
 
     # Botones
     boton_volver = draw_button(50, 500, 200, 50, "Volver al Menú")
