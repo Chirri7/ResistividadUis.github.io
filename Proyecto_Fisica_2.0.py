@@ -144,7 +144,7 @@ def calcular_resistividad_interfaz():
     screen.blit(titulo, (WIDTH // 2 - titulo.get_width() // 2, 50))
 
     # Fórmula gráfica
-    formula_text = font.render("R = ρ * L / A", True, BLACK)
+    formula_text = font.render("ρ = R * A / L", True, BLACK)
     screen.blit(formula_text, (WIDTH // 2 - 100, 100))
 
     # Dibujar sliders interactivos
@@ -153,6 +153,29 @@ def calcular_resistividad_interfaz():
     
     # Dibujar el selector de materiales
     selector_rect = draw_material_selector(50, 100, materiales, material_seleccionado)
+    
+    # Obtener la resistividad teórica del material seleccionado
+    resistividad_teorica = materiales[material_seleccionado]
+    
+    # Convertir unidades de longitud y área
+    longitud_metros = longitud / 100  # Convertir de cm a m
+    area_metros = area / 10000        # Convertir de cm² a m²
+    
+    # Fijar un valor base de resistencia (puedes hacerlo dinámico en el futuro)
+    resistencia_base = 1.0  # Resistencia fija en Ω (puedes cambiarla según lo desees)
+
+    # Evitar división por cero y calcular la resistividad experimental
+    if longitud_metros > 0:
+        resistividad_experimental = resistencia_base * (area_metros / longitud_metros)
+    else:
+        resistividad_experimental = 0
+        
+    # Mostrar resistividad teórica y experimental
+    resistividad_teorica_label = font.render(f"Resistividad Teórica: {resistividad_teorica:.2e} Ω·m", True, BLACK)
+    resistividad_experimental_label = font.render(f"Resistividad Experimental: {resistividad_experimental:.2e} Ω·m", True, BLACK)
+
+    screen.blit(resistividad_teorica_label, (700, 430))
+    screen.blit(resistividad_experimental_label, (700, 470))
     
     # Actualizar la resistividad según el material seleccionado
     resistividad = materiales[material_seleccionado]
