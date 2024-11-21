@@ -2,11 +2,16 @@ import pygame
 import sys
 import random
 import math
-
+import pyttsx3
 # Inicialización de Pygame
 pygame.init()
 
-pygame.event.set_allowed([pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.QUIT])
+# Inicializar el motor de voz
+engine = pyttsx3.init()
+engine.setProperty('rate', 150)  # Velocidad de la voz
+engine.setProperty('volume', 1.0)  # Volumen (0.0 a 1.0)
+
+"""pygame.event.set_allowed([pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.QUIT])"""
 
 # Configuración de la ventana
 WIDTH, HEIGHT = 1300, 600
@@ -104,7 +109,32 @@ class Carga:
 
 # Crear una lista de cargas
 cargas = []
-     
+#Variables globales para la respuesta
+pregunta_input = ""  # Texto de entrada para la pregunta
+respuesta_output = ""  # Respuesta mostrada
+pregunta_activa = False  # Estado de la caja de texto
+#Manejar preguntas y respues 
+def responder_pregunta(pregunta):
+    respuesta = ""
+    pregunta = pregunta.lower()
+
+    if "resistividad" in pregunta:
+        respuesta = "La resistividad es una propiedad del material que mide su capacidad para oponerse al flujo de corriente eléctrica."
+    elif "resistencia" in pregunta:
+        respuesta = "La resistencia depende de la resistividad, la longitud y el área de la sección transversal del conductor."
+    elif "cilindro" in pregunta:
+        respuesta = "El cilindro representa un conductor donde las cargas fluyen debido a una diferencia de potencial."
+    elif "fórmula" in pregunta:
+        respuesta = "La fórmula de resistividad es rho igual a resistencia por área dividido por la longitud."
+    else:
+        respuesta = "Lo siento, no entiendo la pregunta."
+
+    # Leer la respuesta en voz alta
+    engine.say(respuesta)
+    engine.runAndWait()
+
+    return respuesta
+
 # Función para dibujar sliders
 def draw_slider(x, y, value, label, min_value=0.1, max_value=10.0, unit=""):
     pygame.draw.rect(screen, GRAY, (x, y, 300, 10))  # Línea base
@@ -154,7 +184,7 @@ def draw_material_selector(x, y, materiales, material_seleccionado):
 
 # Pantalla de calcular resistencia
 def calcular_resistividad_interfaz():
-    global resistividad, longitud, area
+    global resistividad, longitud, area,pregunta_caja
     screen.fill(WHITE)
 
     # Título
@@ -195,15 +225,29 @@ def calcular_resistividad_interfaz():
     resistividad_teorica_label = font.render(f"Resistividad Teórica: {resistividad_teorica:.2e} Ω·m", True, BLACK)
     resistividad_experimental_label = font.render(f"Resistividad Experimental: {resistividad_experimental:.2e} Ω·m", True, BLACK)
 
-    screen.blit(resistividad_teorica_label, (700, 430))
-    screen.blit(resistividad_experimental_label, (700, 470))
+    screen.blit(resistividad_teorica_label, (700, 300))
+    screen.blit(resistividad_experimental_label, (700, 330))
     
     # Actualizar velocidades de las cargas
     for carga in cargas:
         carga.actualizar_velocidad(resistividad_teorica)
 
     # Dibujar material dinámico como un cilindro con cargas
-    dibujar_material_cilindrico(800, 300, longitud, area,color_material)
+    dibujar_material_cilindrico(800, 200, longitud, area,color_material)
+    
+    # Caja de texto para la pregunta
+    pregunta_caja = pygame.Rect(700, 420, 400, 40)
+    pygame.draw.rect(screen, WHITE if pregunta_activa else GRAY, pregunta_caja)
+    pygame.draw.rect(screen, BLACK, pregunta_caja, 2)
+    pregunta_texto = font.render(pregunta_input or "Escribe tu pregunta aquí...", True, BLACK)
+    screen.blit(pregunta_texto, (pregunta_caja.x + 5, pregunta_caja.y + 10))
+    
+    # Caja de texto para la respuesta
+    respuesta_caja = pygame.Rect(700, 470, 400, 60)
+    pygame.draw.rect(screen, GRAY, respuesta_caja)
+    pygame.draw.rect(screen, BLACK, respuesta_caja, 2)
+    respuesta_texto = font.render(respuesta_output, True, BLACK)
+    screen.blit(respuesta_texto, (respuesta_caja.x + 5, respuesta_caja.y + 10))
 
     # Botones
     boton_volver = draw_button(50, 500, 200, 50, "Volver al Menú")
@@ -411,7 +455,7 @@ while running:
                     estado_actual = CALCULAR_RESISTIVIDAD
                 elif botones["guia"].collidepoint(event.pos):
                     estado_actual = GUIA
-                    
+
             elif estado_actual == CALCULAR_RESISTIVIDAD:
                 if boton_volver.collidepoint(event.pos):
                     estado_actual = MENU
@@ -433,6 +477,12 @@ while running:
                     datos_material = materiales[material_seleccionado]
                     resistividad_teorica = datos_material["resistividad"]
                     inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10), resistividad_experimental)
+                # Detectar clic en la caja de preguntas
+                elif pregunta_caja.collidepoint(event.pos):
+                    pregunta_activa = True
+                else:
+                    pregunta_activa = False
+                    
             elif estado_actual == GUIA:
                 #Activar/desactivar la caja de texto del diámetro
                 if botones["diametro_caja"].collidepoint(event.pos):
@@ -498,6 +548,15 @@ while running:
                     resistividad_input = resistividad_input[:-1]
                 else:
                     resistividad_input += event.unicode
+            
+            elif pregunta_activa:
+                if event.key == pygame.K_RETURN:  # Enviar pregunta
+                    respuesta_output = responder_pregunta(pregunta_input)
+                    pregunta_input = ""  # Limpiar entrada
+                elif event.key == pygame.K_BACKSPACE:
+                    pregunta_input = pregunta_input[:-1]  # Borrar último carácter
+                else:
+                    pregunta_input += event.unicode  # Agregar carácter
             elif selected_cell is not None:
                 print(f"Tecla presionada: {event.unicode}")
                 fila, col = selected_cell
