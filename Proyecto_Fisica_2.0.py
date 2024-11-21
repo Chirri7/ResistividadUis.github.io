@@ -63,7 +63,10 @@ MENU = "menu"
 CALCULAR_RESISTIVIDAD = "calcular_resistividad"
 GUIA = "guia"
 
-
+# Variable global para el diámetro y estado de la caja de texto
+diametro = 0.01  # Valor inicial en metros
+diametro_input = ""  # Texto de entrada para el diámetro
+diametro_activo = False  # Estado de la caja de texto (si está activa)
 
 
 # Fuente
@@ -294,6 +297,20 @@ def mostrar_guia():
     # Botón para eliminar filas
     boton_eliminar = draw_button(x_inicio + ancho_celda + 10, y_inicio + (len(datos_tabla) + 1) * alto_celda, ancho_celda, alto_celda, "Eliminar Fila")
 
+    # Dibujar caja de texto para el diámetro
+    diametro_caja = pygame.Rect(1000, 200, 200, 40)
+    pygame.draw.rect(screen, GRAY if not diametro_activo else WHITE, diametro_caja)
+    pygame.draw.rect(screen, BLACK, diametro_caja, 2)
+    texto_diametro = font.render(diametro_input if diametro_activo else f"{diametro:.2f}", True, BLACK)
+    screen.blit(texto_diametro, (diametro_caja.x + 10, diametro_caja.y + 10))
+
+    # Etiqueta para la caja de texto
+    etiqueta_diametro = font.render("Diámetro (d) en metros:", True, BLACK)
+    screen.blit(etiqueta_diametro, (1000, 170))
+
+    # Calcular el área basada en el diámetro
+    area = math.pi * (diametro ** 2) / 4
+
     # Calcular valores dinámicos
     pendiente = calcular_pendiente(datos_tabla)
     resistividad_exp, error_porcentual = calcular_resistividad_y_error(area, pendiente, valor_teorico)
@@ -322,7 +339,7 @@ def mostrar_guia():
     # Botón para volver al menú
     boton_volver = draw_button(WIDTH - 250, HEIGHT - 100, 200, 50, "Volver al Menú")
 
-    return {"añadir": boton_añadir,"eliminar": boton_eliminar,"volver": boton_volver}, x_inicio, y_inicio, ancho_celda, alto_celda
+    return {"añadir": boton_añadir,"eliminar": boton_eliminar,"volver": boton_volver,"diametro_caja": diametro_caja}, x_inicio, y_inicio, ancho_celda, alto_celda
 
 # Pantalla de menú
 def mostrar_menu():
@@ -398,8 +415,15 @@ while running:
                     resistividad_teorica = datos_material["resistividad"]
                     inicializar_cargas(20, 800, 300, int(20 + longitud * 20), int(10 + area * 10), resistividad_experimental)
             elif estado_actual == GUIA:
+                #Activar/desactivar la caja de texto del diámetro
+                if botones["diametro_caja"].collidepoint(event.pos):
+                    diametro_activo = not diametro_activo
+                    print(f"Celda seleccionada: {diametro_activo}")
+                else:
+                    diametro_activo = False
                 #Detectar click dentro de la tabla  
-                if len(datos_tabla) > 0:  # Verificar que la tabla no esté vacía
+                # Detectar clic dentro de la tabla (solo si la caja de texto no está activa)
+                if not diametro_activo and len(datos_tabla) > 0:
                     if x_inicio <= mouse_x <= x_inicio + len(datos_tabla[0]) * ancho_celda:
                         if y_inicio + alto_celda <= mouse_y <= y_inicio + (len(datos_tabla) + 1) * alto_celda:
                             col_idx = (mouse_x - x_inicio) // ancho_celda
@@ -407,7 +431,7 @@ while running:
                             selected_cell = (fila_idx, col_idx)
                             input_text = ""  # Limpiar texto previo
                             print(f"Celda seleccionada: {selected_cell}")
-                else:
+                elif not diametro_activo and len(datos_tabla) == 0:
                     print("La tabla está vacía, añade una fila para interactuar.")
                 # Verificar botones en la guía
                 if botones["volver"].collidepoint(event.pos):
@@ -419,22 +443,37 @@ while running:
                         datos_tabla.pop()  # Eliminar la última fila     
                                
         #Eventos de teclado         
-        elif event.type == pygame.KEYDOWN and selected_cell is not None:
-            print(f"Tecla presionada: {event.unicode}")
-            fila, col = selected_cell
-            encabezado = ["L(m)", "R(Ohmios)"][col]
-            if event.key == pygame.K_RETURN:  # Guardar valor al presionar Enter
-                try:
-                    datos_tabla[fila][encabezado] = float(input_text)  # Convierte y guarda
-                except ValueError:
-                    print(f"Valor no válido: {input_text}")
-                selected_cell = None  # Deseleccionar celda
-                input_text = ""  # Limpiar texto
-            elif event.key == pygame.K_BACKSPACE:  # Borrar último carácter
-                input_text = input_text[:-1]
-            else:
-                input_text += event.unicode  # Agregar carácter
-                print(f"Texto actual: {input_text}")
+        elif event.type == pygame.KEYDOWN:
+            # Manejar entrada en la caja de texto del diámetro
+            if diametro_activo:
+                if event.key == pygame.K_RETURN:  # Finalizar entrada
+                    try:
+                        diametro = float(diametro_input)  # Convertir texto a número
+                        print(f"Nuevo diámetro ingresado: {diametro}")
+                    except ValueError:
+                        print("Entrada inválida, ingrese un número válido.")
+                    diametro_input = ""  # Limpiar entrada
+                    diametro_activo = False
+                elif event.key == pygame.K_BACKSPACE:
+                    diametro_input = diametro_input[:-1]  # Borrar último carácter
+                else:
+                    diametro_input += event.unicode  # Agregar carácter
+            elif selected_cell is not None:
+                print(f"Tecla presionada: {event.unicode}")
+                fila, col = selected_cell
+                encabezado = ["L(m)", "R(Ohmios)"][col]
+                if event.key == pygame.K_RETURN:  # Guardar valor al presionar Enter
+                    try:
+                        datos_tabla[fila][encabezado] = float(input_text)  # Convierte y guarda
+                    except ValueError:
+                        print(f"Valor no válido: {input_text}")
+                    selected_cell = None  # Deseleccionar celda
+                    input_text = ""  # Limpiar texto
+                elif event.key == pygame.K_BACKSPACE:  # Borrar último carácter
+                    input_text = input_text[:-1]
+                else:
+                    input_text += event.unicode  # Agregar carácter
+                    print(f"Texto actual: {input_text}")
            
             
         elif event.type == pygame.MOUSEBUTTONUP:
