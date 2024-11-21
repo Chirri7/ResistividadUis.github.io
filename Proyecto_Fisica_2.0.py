@@ -135,6 +135,27 @@ def responder_pregunta(pregunta):
 
     return respuesta
 
+def dividir_texto(texto, ancho_max, fuente):
+    """Divide el texto en líneas ajustadas al ancho máximo."""
+    palabras = texto.split(' ')
+    lineas = []
+    linea_actual = ""
+
+    for palabra in palabras:
+        prueba_linea = f"{linea_actual} {palabra}".strip()
+        ancho_texto, _ = fuente.size(prueba_linea)
+
+        if ancho_texto <= ancho_max:
+            linea_actual = prueba_linea
+        else:
+            lineas.append(linea_actual)
+            linea_actual = palabra
+
+    if linea_actual:  # Añade la última línea
+        lineas.append(linea_actual)
+
+    return lineas
+
 # Función para dibujar sliders
 def draw_slider(x, y, value, label, min_value=0.1, max_value=10.0, unit=""):
     pygame.draw.rect(screen, GRAY, (x, y, 300, 10))  # Línea base
@@ -243,11 +264,17 @@ def calcular_resistividad_interfaz():
     screen.blit(pregunta_texto, (pregunta_caja.x + 5, pregunta_caja.y + 10))
     
     # Caja de texto para la respuesta
-    respuesta_caja = pygame.Rect(700, 470, 400, 60)
+    respuesta_caja = pygame.Rect(700, 470, 400, 100)
     pygame.draw.rect(screen, GRAY, respuesta_caja)
     pygame.draw.rect(screen, BLACK, respuesta_caja, 2)
-    respuesta_texto = font.render(respuesta_output, True, BLACK)
-    screen.blit(respuesta_texto, (respuesta_caja.x + 5, respuesta_caja.y + 10))
+
+    # Dividir texto en líneas
+    lineas_respuesta = dividir_texto(respuesta_output, 380, font)  # Ajustar ancho al cuadro
+    y_offset = 5  # Espaciado inicial dentro del cuadro
+    for linea in lineas_respuesta:
+        respuesta_texto = font.render(linea, True, BLACK)
+        screen.blit(respuesta_texto, (respuesta_caja.x + 5, respuesta_caja.y + y_offset))
+        y_offset += 25  # Espaciado entre líneas
 
     # Botones
     boton_volver = draw_button(50, 500, 200, 50, "Volver al Menú")
