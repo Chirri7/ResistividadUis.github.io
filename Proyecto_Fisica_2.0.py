@@ -301,7 +301,7 @@ def mostrar_guia():
     diametro_caja = pygame.Rect(1000, 200, 200, 40)
     pygame.draw.rect(screen, GRAY if not diametro_activo else WHITE, diametro_caja)
     pygame.draw.rect(screen, BLACK, diametro_caja, 2)
-    texto_diametro = font.render(diametro_input if diametro_activo else f"{diametro:.2f}", True, BLACK)
+    texto_diametro = font.render(diametro_input, True, BLACK)
     screen.blit(texto_diametro, (diametro_caja.x + 10, diametro_caja.y + 10))
 
     # Etiqueta para la caja de texto
@@ -448,11 +448,14 @@ while running:
             if diametro_activo:
                 if event.key == pygame.K_RETURN:  # Finalizar entrada
                     try:
-                        diametro = float(diametro_input)  # Convertir texto a número
+                        diametro = float(diametro_input)*0.001  # Convertir texto a número
                         print(f"Nuevo diámetro ingresado: {diametro}")
+
+                        # Actualizar diametro_input para mostrarlo como mm en la caja
+                        diametro_input = str(float(diametro) * 1000)  # Convertir metros a mm para mostrar
                     except ValueError:
                         print("Entrada inválida, ingrese un número válido.")
-                    diametro_input = ""  # Limpiar entrada
+                        diametro_input = ""  # Limpiar entrada
                     diametro_activo = False
                 elif event.key == pygame.K_BACKSPACE:
                     diametro_input = diametro_input[:-1]  # Borrar último carácter
