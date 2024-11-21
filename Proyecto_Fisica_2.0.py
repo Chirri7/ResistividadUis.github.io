@@ -51,7 +51,13 @@ input_text = ""  # Texto temporal para entrada
 # Parámetros iniciales
 diametro = 0.01  # Diámetro en metros
 area = (math.pi * (diametro ** 2)) / 4
+
+
 valor_teorico = 7.66e-8  # Resistividad teórica en Ω·m
+
+resistividad_teorica = 7.66e-8  # Valor inicial en Ω·m
+resistividad_input = ""  # Texto de entrada para la resistividad
+resistividad_activa = False  # Estado de la caja de texto
 
 # Cálculos dinámicos
 pendiente = 0.0
@@ -311,9 +317,22 @@ def mostrar_guia():
     # Calcular el área basada en el diámetro
     area = math.pi * (diametro ** 2) / 4
 
-    # Calcular valores dinámicos
+    # Dibujar caja de texto para la resistividad teórica
+    resistividad_caja = pygame.Rect(1000, 280, 200, 40)
+    pygame.draw.rect(screen, GRAY if not resistividad_activa else WHITE, resistividad_caja)
+    pygame.draw.rect(screen, BLACK, resistividad_caja, 2)
+
+    # Mostrar el valor de entrada o el valor por defecto en la caja
+    texto_resistividad = font.render(resistividad_input if resistividad_activa else f"{resistividad_teorica:.2e}", True, BLACK)
+    screen.blit(texto_resistividad, (resistividad_caja.x + 10, resistividad_caja.y + 10))
+
+    # Etiqueta para la caja de texto
+    etiqueta_diametro = font.render("Resistividad (p) teorica:", True, BLACK)
+    screen.blit(etiqueta_diametro, (1000, 250))
+
+    # Calcular el error porcentual usando la resistividad teórica ingresada
     pendiente = calcular_pendiente(datos_tabla)
-    resistividad_exp, error_porcentual = calcular_resistividad_y_error(area, pendiente, valor_teorico)
+    resistividad_exp, error_porcentual = calcular_resistividad_y_error(area, pendiente, resistividad_teorica)
     
     # Dibujar caja de resultados
     resultados_x = x_inicio + len(encabezados) * ancho_celda + 50
@@ -339,7 +358,7 @@ def mostrar_guia():
     # Botón para volver al menú
     boton_volver = draw_button(WIDTH - 250, HEIGHT - 100, 200, 50, "Volver al Menú")
 
-    return {"añadir": boton_añadir,"eliminar": boton_eliminar,"volver": boton_volver,"diametro_caja": diametro_caja}, x_inicio, y_inicio, ancho_celda, alto_celda
+    return {"añadir": boton_añadir,"eliminar": boton_eliminar,"volver": boton_volver,"diametro_caja": diametro_caja,"resistividad_caja": resistividad_caja}, x_inicio, y_inicio, ancho_celda, alto_celda
 
 # Pantalla de menú
 def mostrar_menu():
@@ -418,9 +437,14 @@ while running:
                 #Activar/desactivar la caja de texto del diámetro
                 if botones["diametro_caja"].collidepoint(event.pos):
                     diametro_activo = not diametro_activo
+                    resistividad_activa = False  # Desactivar la otra caja si está activa
                     print(f"Celda seleccionada: {diametro_activo}")
+                elif botones["resistividad_caja"].collidepoint(event.pos):
+                    resistividad_activa = not resistividad_activa
+                    diametro_activo = False  # Desactivar la otra caja si está activa
                 else:
                     diametro_activo = False
+                    resistividad_activa = False
                 #Detectar click dentro de la tabla  
                 # Detectar clic dentro de la tabla (solo si la caja de texto no está activa)
                 if not diametro_activo and len(datos_tabla) > 0:
@@ -461,6 +485,19 @@ while running:
                     diametro_input = diametro_input[:-1]  # Borrar último carácter
                 else:
                     diametro_input += event.unicode  # Agregar carácter
+            elif resistividad_activa:
+                if event.key == pygame.K_RETURN:
+                    try:
+                        resistividad_teorica = float(resistividad_input)  # Convertir texto a número
+                        print(f"Nueva resistividad teórica ingresada: {resistividad_teorica}")
+                    except ValueError:
+                        print("Entrada inválida para la resistividad.")
+                        resistividad_input = ""
+                    resistividad_activa = False
+                elif event.key == pygame.K_BACKSPACE:
+                    resistividad_input = resistividad_input[:-1]
+                else:
+                    resistividad_input += event.unicode
             elif selected_cell is not None:
                 print(f"Tecla presionada: {event.unicode}")
                 fila, col = selected_cell
