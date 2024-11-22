@@ -29,6 +29,11 @@ BLUE = (0, 0, 255)
 BROWN = (139, 69, 19)
 RED = (255, 0, 0)
 
+# Colores en formato RGB
+VERDE_OSCURO = (42, 72, 78)     # Hex: #2A484E
+VERDE_PETROLEO = (55, 119, 117) # Hex: #377775
+VERDE_MENTA = (168, 216, 205)   # Hex: #A8D8CD
+VERDE_CLARO = (221, 239, 227)   # Hex: #DDEFE3
 #DATOS DE SIMULADOR
 
 # Variables iniciales
@@ -158,9 +163,9 @@ def dividir_texto(texto, ancho_max, fuente):
 
 # Función para dibujar sliders
 def draw_slider(x, y, value, label, min_value=0.1, max_value=10.0, unit=""):
-    pygame.draw.rect(screen, GRAY, (x, y, 300, 10))  # Línea base
+    pygame.draw.rect(screen, VERDE_MENTA, (x, y, 300, 10))  # Línea base
     handle_x = x + int((value - min_value) / (max_value - min_value) * 300)
-    pygame.draw.circle(screen, BLUE, (handle_x, y + 5), 10)  # Controlador
+    pygame.draw.circle(screen, VERDE_OSCURO, (handle_x, y + 5), 10)  # Controlador
     value_text = font.render(f"{label}: {value:.2f} {unit}", True, BLACK)
     screen.blit(value_text, (x, y - 30))
     return handle_x
@@ -193,8 +198,8 @@ def dibujar_material_cilindrico(x, y, longitud, area,color):
         carga.dibujar()
 
 def draw_material_selector(x, y, materiales, material_seleccionado):
-    pygame.draw.rect(screen, GRAY, (x, y, 200, 40))  # Fondo del selector
-    pygame.draw.rect(screen, BLACK, (x, y, 200, 40), 2)  # Borde del selector
+    pygame.draw.rect(screen, VERDE_MENTA, (x, y, 200, 40))  # Fondo del selector
+    pygame.draw.rect(screen, VERDE_PETROLEO, (x, y, 200, 40), 2)  # Borde del selector
     
     # Texto del material seleccionado
     texto_material = font.render(f"Material: {material_seleccionado}", True, BLACK)
@@ -206,14 +211,14 @@ def draw_material_selector(x, y, materiales, material_seleccionado):
 # Pantalla de calcular resistencia
 def calcular_resistividad_interfaz():
     global resistividad, longitud, area,pregunta_caja
-    screen.fill(WHITE)
+    screen.fill(VERDE_CLARO)
 
     # Título
-    titulo = font.render("Calular Resistividad", True, BLACK)
+    titulo = font.render("Calular Resistividad", True, VERDE_OSCURO)
     screen.blit(titulo, (WIDTH // 2 - titulo.get_width() // 2, 50))
 
     # Fórmula gráfica
-    formula_text = font.render("ρ = R * A / L", True, BLACK)
+    formula_text = font.render("ρ = R * A / L", True, VERDE_OSCURO)
     screen.blit(formula_text, (WIDTH // 2 - 100, 100))
 
     # Dibujar sliders interactivos
@@ -243,8 +248,8 @@ def calcular_resistividad_interfaz():
         resistividad_experimental = 0
         
     # Mostrar resistividad teórica y experimental
-    resistividad_teorica_label = font.render(f"Resistividad Teórica: {resistividad_teorica:.2e} Ω·m", True, BLACK)
-    resistividad_experimental_label = font.render(f"Resistividad Experimental: {resistividad_experimental:.2e} Ω·m", True, BLACK)
+    resistividad_teorica_label = font.render(f"Resistividad Teórica: {resistividad_teorica:.2e} Ω·m", True, VERDE_OSCURO)
+    resistividad_experimental_label = font.render(f"Resistividad Experimental: {resistividad_experimental:.2e} Ω·m", True, VERDE_OSCURO)
 
     screen.blit(resistividad_teorica_label, (700, 300))
     screen.blit(resistividad_experimental_label, (700, 330))
@@ -258,14 +263,14 @@ def calcular_resistividad_interfaz():
     
     # Caja de texto para la pregunta
     pregunta_caja = pygame.Rect(700, 420, 400, 40)
-    pygame.draw.rect(screen, WHITE if pregunta_activa else GRAY, pregunta_caja)
+    pygame.draw.rect(screen, WHITE if pregunta_activa else VERDE_PETROLEO, pregunta_caja)
     pygame.draw.rect(screen, BLACK, pregunta_caja, 2)
     pregunta_texto = font.render(pregunta_input or "Escribe tu pregunta aquí...", True, BLACK)
     screen.blit(pregunta_texto, (pregunta_caja.x + 5, pregunta_caja.y + 10))
     
     # Caja de texto para la respuesta
     respuesta_caja = pygame.Rect(700, 470, 400, 100)
-    pygame.draw.rect(screen, GRAY, respuesta_caja)
+    pygame.draw.rect(screen, VERDE_MENTA, respuesta_caja)
     pygame.draw.rect(screen, BLACK, respuesta_caja, 2)
 
     # Dividir texto en líneas
@@ -293,8 +298,8 @@ def inicializar_cargas(num_cargas, x_inicio, y_inicio, longitud_px, altura_px,re
 
 # Función para dibujar botones
 def draw_button(x, y, width, height, text):
-    pygame.draw.rect(screen, GRAY, (x, y, width, height))
-    pygame.draw.rect(screen, BLACK, (x, y, width, height), 2)  # Borde negro
+    pygame.draw.rect(screen, VERDE_PETROLEO, (x, y, width, height))
+    pygame.draw.rect(screen, VERDE_OSCURO, (x, y, width, height), 2)  # Borde negro
     button_text = font.render(text, True, BLACK)
     text_rect = button_text.get_rect(center=(x + width / 2, y + height / 2))
     screen.blit(button_text, text_rect)
@@ -327,10 +332,10 @@ ancho_celda, alto_celda = 200, 40
 def mostrar_guia():
     global datos_tabla, pendiente, resistividad_exp, error_porcentual,selected_cell, input_text
 
-    screen.fill(WHITE)
+    screen.fill(VERDE_MENTA)
 
     # Título
-    titulo = font.render("Guía: Tablas y Cálculos", True, BLACK)
+    titulo = font.render("Guía: Tablas y Cálculos", True, VERDE_OSCURO)
     screen.blit(titulo, (WIDTH // 2 - titulo.get_width() // 2, 20))
     
     # Dibujar una tabla estructurada
@@ -340,7 +345,7 @@ def mostrar_guia():
     
     # Dibujar encabezados
     for i, encabezado in enumerate(encabezados):
-        pygame.draw.rect(screen, BLACK, (x_inicio + i * ancho_celda, y_inicio, ancho_celda, alto_celda), 2)
+        pygame.draw.rect(screen, VERDE_PETROLEO, (x_inicio + i * ancho_celda, y_inicio, ancho_celda, alto_celda), 2)
         texto = font.render(encabezado, True, BLACK)
         screen.blit(texto, (x_inicio + i * ancho_celda + 10, y_inicio + 10))
         
@@ -351,11 +356,11 @@ def mostrar_guia():
             celda_y = y_inicio + (fila_idx + 1) * alto_celda
 
             # Dibujar la celda
-            pygame.draw.rect(screen, BLACK, (celda_x, celda_y, ancho_celda, alto_celda), 2)
+            pygame.draw.rect(screen, VERDE_OSCURO, (celda_x, celda_y, ancho_celda, alto_celda), 2)
         
             # Mostrar `input_text` dinámicamente si la celda está seleccionada
             if selected_cell == (fila_idx, col_idx):
-                texto = font.render(input_text, True, BLUE)
+                texto = font.render(input_text, True, VERDE_PETROLEO)
             else:
                 valor = fila[key]
                 texto = font.render(f"{valor:.3f}" if isinstance(valor, float) else str(valor), True, BLACK)
@@ -364,7 +369,7 @@ def mostrar_guia():
 
             # Resaltar la celda seleccionada
             if selected_cell == (fila_idx, col_idx):
-                pygame.draw.rect(screen, BLUE, (celda_x, celda_y, ancho_celda, alto_celda), 3)
+                pygame.draw.rect(screen, WHITE, (celda_x, celda_y, ancho_celda, alto_celda), 3)
 
 
 
@@ -376,7 +381,7 @@ def mostrar_guia():
 
     # Dibujar caja de texto para el diámetro
     diametro_caja = pygame.Rect(1000, 200, 200, 40)
-    pygame.draw.rect(screen, GRAY if not diametro_activo else WHITE, diametro_caja)
+    pygame.draw.rect(screen, VERDE_PETROLEO if not diametro_activo else WHITE, diametro_caja)
     pygame.draw.rect(screen, BLACK, diametro_caja, 2)
     texto_diametro = font.render(diametro_input, True, BLACK)
     screen.blit(texto_diametro, (diametro_caja.x + 10, diametro_caja.y + 10))
@@ -390,7 +395,7 @@ def mostrar_guia():
 
     # Dibujar caja de texto para la resistividad teórica
     resistividad_caja = pygame.Rect(1000, 280, 200, 40)
-    pygame.draw.rect(screen, GRAY if not resistividad_activa else WHITE, resistividad_caja)
+    pygame.draw.rect(screen, VERDE_PETROLEO if not resistividad_activa else WHITE, resistividad_caja)
     pygame.draw.rect(screen, BLACK, resistividad_caja, 2)
 
     # Mostrar el valor de entrada o el valor por defecto en la caja
@@ -412,14 +417,14 @@ def mostrar_guia():
     alto_resultados = 200
     
     # Fondo de la caja de resultados
-    pygame.draw.rect(screen, GRAY, (resultados_x, resultados_y, ancho_resultados, alto_resultados))
+    pygame.draw.rect(screen, VERDE_PETROLEO, (resultados_x, resultados_y, ancho_resultados, alto_resultados))
     pygame.draw.rect(screen, BLACK, (resultados_x, resultados_y, ancho_resultados, alto_resultados), 2)
 
     # Mostrar resultados dentro de la caja
     resultados = [
         f"Área (A): {area:.6e} m²",
         f"Pendiente: {pendiente:.3f}",
-        f"Resistividad Experimental: {resistividad_exp:.6e} Ω·m",
+        f"Resistividad Exp: {resistividad_exp:.6e} Ω·m",
         f"Error %: {error_porcentual:.2f}%",
     ]
     for i, resultado in enumerate(resultados):
@@ -433,7 +438,7 @@ def mostrar_guia():
 
 # Pantalla de menú
 def mostrar_menu():
-    screen.fill(WHITE)
+    screen.fill(VERDE_MENTA)
     titulo = font.render("Simulador de Resistividad", True, BLACK)
     screen.blit(titulo, (WIDTH // 2 - titulo.get_width() // 2, 50))
     boton_resistencia = draw_button(WIDTH // 2 - 100, 150, 200, 50, "Calcular Resistividad")
